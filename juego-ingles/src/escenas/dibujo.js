@@ -3,6 +3,12 @@ export const COLORES = {
   oro: 0xf4a261, gris: 0xb8b0a2, piel: 0xe0ac69,
 };
 
+// Achica un texto (o grupo de emojis) hasta que quepa en el ancho dado.
+export function ajustarAncho(texto, maximo) {
+  if (texto.width > maximo) texto.setScale(maximo / texto.width);
+  return texto;
+}
+
 export function crearBoton(escena, x, y, icono, alTocar, radio = 55) {
   const boton = escena.add.container(x, y);
   boton.add([
@@ -95,10 +101,8 @@ export function crearTarjeta(escena, x, y, imagen, ancho = 240, alto = 240) {
   const tarjeta = escena.add.container(x, y);
   tarjeta.add(escena.add.rectangle(0, 0, ancho, alto, COLORES.crema).setStrokeStyle(6, COLORES.tinta));
   if (imagen.tipo === 'emoji') {
-    const grande = [...imagen.valor].length <= 2;
-    tarjeta.add(
-      escena.add.text(0, 0, imagen.valor, { fontSize: grande ? '110px' : '60px' }).setOrigin(0.5),
-    );
+    const dibujo = escena.add.text(0, 0, imagen.valor, { fontSize: '110px' }).setOrigin(0.5);
+    tarjeta.add(ajustarAncho(dibujo, ancho - 40));
   } else {
     const posicion = (imagen.indice + 6) % 7;
     tarjeta.add(escena.add.text(0, -45, '📅', { fontSize: '72px' }).setOrigin(0.5));

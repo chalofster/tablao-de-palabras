@@ -4,13 +4,17 @@ import { sesion } from './sesion.js';
 import { Inicio } from './escenas/Inicio.js';
 import { Mapa } from './escenas/Mapa.js';
 import { Coleccion } from './escenas/Coleccion.js';
+import { Escucha } from './escenas/Escucha.js';
+import { Piano } from './escenas/Piano.js';
+import { Voz } from './escenas/Voz.js';
+import { Captura } from './escenas/Captura.js';
 
 const juego = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'juego',
   backgroundColor: '#fdf0d5',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: ANCHO, height: ALTO },
-  scene: [Inicio, Mapa, Coleccion],
+  scene: [Inicio, Mapa, Coleccion, Escucha, Piano, Voz, Captura],
 });
 
 if (import.meta.env.DEV) window.__tablao = { juego, sesion };
