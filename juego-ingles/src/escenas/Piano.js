@@ -115,12 +115,16 @@ export class Piano extends Phaser.Scene {
   terminar() {
     sesion.musica.detenerCompas();
     this.teclas.forEach((tecla) => tecla.disableInteractive());
+    // La escena se reutiliza: si mientras habla se volvió al mapa y se abrió otra
+    // criatura, this.intento ya es otro y este aviso atrasado debe ignorarse.
+    const intento = this.intento;
+    const tarea = this.tarea;
     this.time.delayedCall(800, async () => {
       sesion.musica.melodia(this.frase.bloques.map((bloque) => bloque.nota));
       this.bailarina.pose('celebracion');
       await sesion.voz.hablar(this.frase.texto);
-      if (this.scene.isActive()) {
-        this.scene.start('Voz', { ...this.tarea, errores: this.intento.erroresTotales });
+      if (this.intento === intento && this.scene.isActive()) {
+        this.scene.start('Voz', { ...tarea, errores: intento.erroresTotales });
       }
     });
   }

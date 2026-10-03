@@ -175,13 +175,15 @@ export function crearBailarina(escena, x, y, escala = 1) {
   dibujarTorso(torso);
   const brazos = [crearBrazo(escena, -1), crearBrazo(escena, 1)];
   const cabeza = crearCabeza(escena);
-  cuerpo.add([...piernas, falda, torso, ...brazos.map((b) => b.hombro), cabeza]);
+  // Brazos y cabeza van juntos para que la respiración no choque con las animaciones de los brazos.
+  const superior = escena.add.container(0, 0, [...brazos.map((b) => b.hombro), cabeza]);
+  cuerpo.add([...piernas, falda, torso, superior]);
   raiz.add(cuerpo);
   dibujarBoca(cabeza.boca, false);
 
   // Animación continua: respira, la falda se mece, las manos hacen floreo y parpadea.
   escena.tweens.add({
-    targets: [cabeza, ...brazos.map((b) => b.hombro)], y: '-=1.5',
+    targets: superior, y: -1.5,
     duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
   });
   escena.tweens.add({

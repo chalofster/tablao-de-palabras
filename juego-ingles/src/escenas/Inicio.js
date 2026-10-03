@@ -22,8 +22,9 @@ export class Inicio extends Phaser.Scene {
     const boton = crearBoton(this, ANCHO / 2, 600, '▶️', () => {}, 90);
     this.tweens.add({ targets: boton, scale: 1.08, duration: 600, yoyo: true, repeat: -1 });
 
-    // iOS solo habilita audio y voz dentro de un toque real del usuario,
-    // por eso se usa el evento del navegador y no el de Phaser.
+    // iOS solo habilita audio y voz dentro de un toque real del usuario.
+    // Phaser emite pointerup dentro del touchend nativo, así que sirve.
+    // No usar 'click': Phaser cancela el touchend y en el iPad ese evento nunca llega.
     const activar = () => {
       sesion.musica = crearMusica();
       sesion.voz = crearVoz();
@@ -32,6 +33,6 @@ export class Inicio extends Phaser.Scene {
       sesion.voz.hablar('Hello!');
       this.scene.start('Mapa');
     };
-    this.game.canvas.addEventListener('click', activar, { once: true });
+    this.input.once('pointerup', activar);
   }
 }

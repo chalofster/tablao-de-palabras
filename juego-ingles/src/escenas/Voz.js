@@ -22,9 +22,12 @@ export class Voz extends Phaser.Scene {
     const seguir = crearBoton(this, ANCHO / 2 + 150, 650, '✅', () => this.scene.start('Captura', this.tarea), 70);
     seguir.setVisible(false);
 
+    // Marca de esta vuelta de la escena, para ignorar avisos atrasados de una anterior.
+    const corrida = {};
+    this.corrida = corrida;
     const invitar = async () => {
       await sesion.voz.hablar(frase.texto, { lento: true });
-      if (!this.scene.isActive()) return;
+      if (this.corrida !== corrida || !this.scene.isActive()) return;
       boca.setAlpha(1);
       this.tweens.add({ targets: boca, scale: 1.25, duration: 450, yoyo: true, repeat: 3 });
       this.time.delayedCall(2500, () => seguir.setVisible(true));
