@@ -11,7 +11,13 @@ export class Inicio extends Phaser.Scene {
   }
 
   create() {
-    crearBailarina(this, ANCHO / 2, 250, 1.6);
+    const bailarina = crearBailarina(this, ANCHO / 2, 235, 1.7);
+    // Mientras espera el primer toque, la bailarina baila sola.
+    let compas = 0;
+    this.time.addEvent({
+      delay: 1400, loop: true,
+      callback: () => bailarina.pose(['paso', 'paso', 'giro', 'paso', 'paso', 'celebracion'][compas++ % 6]),
+    });
     this.add.text(ANCHO / 2, 450, '🔊', { fontSize: '48px' }).setOrigin(0.5);
     const boton = crearBoton(this, ANCHO / 2, 600, '▶️', () => {}, 90);
     this.tweens.add({ targets: boton, scale: 1.08, duration: 600, yoyo: true, repeat: -1 });

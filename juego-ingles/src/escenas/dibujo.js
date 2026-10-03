@@ -1,3 +1,5 @@
+export { crearBailarina } from './bailarina.js';
+
 export const COLORES = {
   fondo: 0xfdf0d5, rojo: 0xd62828, crema: 0xfff8e7, tinta: 0x3d2b1f,
   oro: 0xf4a261, gris: 0xb8b0a2, piel: 0xe0ac69,
@@ -18,56 +20,6 @@ export function crearBoton(escena, x, y, icono, alTocar, radio = 55) {
   boton.setSize(radio * 2, radio * 2).setInteractive({ useHandCursor: true });
   boton.on('pointerup', () => alTocar());
   return boton;
-}
-
-// Ángulos de los brazos en radianes: [izquierdo, derecho].
-const POSES = {
-  quieta: [2.4, 0.75],
-  paso: [3.6, 0.4],
-  giro: [4.2, 5.2],
-  celebracion: [4.2, 5.2],
-};
-
-export function crearBailarina(escena, x, y, escala = 1) {
-  const bailarina = escena.add.container(x, y).setScale(escala);
-  const g = escena.add.graphics();
-  bailarina.add(g);
-
-  function dibujar(brazoIzquierdo, brazoDerecho) {
-    g.clear();
-    g.fillStyle(COLORES.rojo);
-    g.fillTriangle(-70, 90, 70, 90, 0, -30);
-    g.fillStyle(0xffffff);
-    [[-30, 60], [0, 40], [30, 60], [-10, 75], [12, 12]].forEach(([px, py]) => g.fillCircle(px, py, 7));
-    g.fillStyle(COLORES.piel);
-    g.fillCircle(0, -55, 24);
-    g.fillStyle(COLORES.tinta);
-    g.fillCircle(0, -78, 13);
-    g.fillStyle(COLORES.rojo);
-    g.fillCircle(16, -72, 7);
-    g.lineStyle(9, COLORES.piel);
-    g.lineBetween(-12, -25, -12 + Math.cos(brazoIzquierdo) * 55, -25 + Math.sin(brazoIzquierdo) * 55);
-    g.lineBetween(12, -25, 12 + Math.cos(brazoDerecho) * 55, -25 + Math.sin(brazoDerecho) * 55);
-  }
-
-  bailarina.pose = (nombre) => {
-    dibujar(...POSES[nombre]);
-    if (nombre === 'paso') {
-      escena.tweens.add({
-        targets: bailarina, angle: { from: -6, to: 6 }, duration: 150, yoyo: true, repeat: 1,
-        onComplete: () => bailarina.setAngle(0),
-      });
-    }
-    if (nombre === 'giro') {
-      escena.tweens.add({ targets: g, scaleX: { from: 1, to: -1 }, duration: 200, yoyo: true });
-    }
-    if (nombre === 'celebracion') {
-      escena.tweens.add({ targets: g, y: { from: 0, to: -40 }, duration: 220, yoyo: true, repeat: 2 });
-    }
-    return bailarina;
-  };
-
-  return bailarina.pose('quieta');
 }
 
 export function crearCriatura(escena, x, y, criatura, { silueta = false, escala = 1 } = {}) {

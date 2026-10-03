@@ -24,7 +24,7 @@ export class Captura extends Phaser.Scene {
       logrado ? registrarExito(sesion.estado, def.id, hoy) : registrarFallo(sesion.estado, def.id, hoy),
     );
 
-    const bailarina = crearBailarina(this, 300, 420, 1.3);
+    const bailarina = crearBailarina(this, 300, 410, 1.6);
     const criatura = crearCriatura(this, 660, 380, def.criatura, { escala: 0.1 });
     this.tweens.add({ targets: criatura, scale: 1.6, duration: 600, ease: 'Back.easeOut' });
 

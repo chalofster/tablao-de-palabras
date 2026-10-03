@@ -31,7 +31,7 @@ export class Piano extends Phaser.Scene {
       this.add.rectangle(this.xRanura(i), Y_RANURAS, LADO, LADO).setStrokeStyle(4, COLORES.gris);
     });
 
-    this.bailarina = crearBailarina(this, 90, 420, 0.8);
+    this.bailarina = crearBailarina(this, 90, 410, 1.1);
     crearBoton(this, 80, 80, '🏠', () => this.scene.start('Mapa'));
     crearBoton(this, ANCHO - 80, 80, '🔊', () => sesion.voz.hablar(this.frase.texto, { lento: true }));
 

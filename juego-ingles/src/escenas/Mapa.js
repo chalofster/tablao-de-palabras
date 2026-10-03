@@ -7,6 +7,7 @@ import { disponibles } from '../logica/repaso.js';
 import { COLORES, crearBailarina, crearBoton, crearCriatura } from './dibujo.js';
 
 const PARADAS = FRASES.map((_, i) => ({ x: 130 + i * 110, y: i % 2 === 0 ? 470 : 330 }));
+const Y_SUELO = 640;
 
 export class Mapa extends Phaser.Scene {
   constructor() {
@@ -46,7 +47,8 @@ export class Mapa extends Phaser.Scene {
       }
     });
 
-    this.bailarina = crearBailarina(this, partida.x - 60, partida.y + 70, 0.7);
+    // La bailarina camina por el suelo, bajo las paradas, para no tapar a las criaturas.
+    this.bailarina = crearBailarina(this, partida.x, Y_SUELO, 0.8);
     crearBoton(this, ANCHO - 80, 80, '📖', () => this.scene.start('Coleccion'));
     if (tareas.length === 0) this.bailarina.pose('celebracion');
   }
@@ -54,9 +56,9 @@ export class Mapa extends Phaser.Scene {
   irA(parada, tarea) {
     if (this.ocupada) return;
     this.ocupada = true;
-    this.bailarina.pose('paso');
+    this.bailarina.pose('caminar');
     this.tweens.add({
-      targets: this.bailarina, x: parada.x - 60, y: parada.y + 70, duration: 600,
+      targets: this.bailarina, x: parada.x, duration: 600,
       onComplete: () => this.scene.start('Escucha', tarea),
     });
   }
