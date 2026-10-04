@@ -45,7 +45,7 @@ Bloques: `I` / `can` o `can't` / acción. El distractor del nivel 3 es la palabr
 
 Bloques: `I have` / `a` o `an` / color / juguete. El distractor es otro color. Las imágenes alternativas son el mismo juguete con otro color y otro juguete con el mismo color.
 
-Los colores se dibujan como círculos pintados por el juego y no como emoji, porque no existe un emoji de círculo rosado y los emoji se ven distintos en cada equipo. Esto agrega un tipo de imagen `color` (círculo de color más el emoji del juguete) y permite que un bloque muestre un círculo de color en vez de un ícono.
+Los colores se dibujan como círculos pintados por el juego y no como emoji, porque no existe un emoji de círculo rosado y los emoji se ven distintos en cada equipo. Esto agrega un tipo de imagen `color` y permite que un bloque muestre un círculo de color en vez de un ícono. En la imagen, la silueta del juguete se pinta entera del color de la frase, con una sombra oscura, porque el emoji trae sus propios colores (en el iPad el auto es rojo) y contradiría la palabra que se aprende. Sin WebGL, que no permite pintar siluetas, se muestra un disco de color detrás del emoji.
 
 ## Navegación
 

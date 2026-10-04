@@ -1,3 +1,5 @@
+import Phaser from 'phaser';
+
 export { crearBailarina } from './bailarina.js';
 
 export const COLORES = {
@@ -56,10 +58,21 @@ export function crearTarjeta(escena, x, y, imagen, ancho = 240, alto = 240) {
     const dibujo = escena.add.text(0, 0, imagen.valor, { fontSize: '110px' }).setOrigin(0.5);
     tarjeta.add(ajustarAncho(dibujo, ancho - 40));
   } else if (imagen.tipo === 'color') {
-    // El color manda: un círculo grande pintado y el juguete encima.
+    // El juguete se pinta entero del color de la frase: el emoji trae sus propios colores
+    // (en el iPad el auto es rojo) y contradiría la palabra que se está aprendiendo.
+    // Sin WebGL no hay relleno de silueta: queda un disco de color detrás del emoji.
     const lado = Math.min(ancho, alto);
-    tarjeta.add(escena.add.circle(0, 0, lado * 0.36, imagen.color).setStrokeStyle(4, COLORES.tinta));
-    tarjeta.add(escena.add.text(0, 0, imagen.juguete, { fontSize: `${Math.round(lado * 0.34)}px` }).setOrigin(0.5));
+    if (escena.game.renderer.type === Phaser.WEBGL) {
+      const juguete = (dx, color) => ajustarAncho(
+        escena.add.text(dx, dx, imagen.juguete, { fontSize: `${Math.round(lado * 0.5)}px` }).setOrigin(0.5),
+        ancho - 40,
+      ).setTintFill(color);
+      tarjeta.add(juguete(Math.round(lado * 0.02), COLORES.tinta));
+      tarjeta.add(juguete(0, imagen.color));
+    } else {
+      tarjeta.add(escena.add.circle(0, 0, lado * 0.36, imagen.color).setStrokeStyle(4, COLORES.tinta));
+      tarjeta.add(escena.add.text(0, 0, imagen.juguete, { fontSize: `${Math.round(lado * 0.34)}px` }).setOrigin(0.5));
+    }
   } else {
     const posicion = (imagen.indice + 6) % 7;
     tarjeta.add(escena.add.text(0, -45, '📅', { fontSize: '72px' }).setOrigin(0.5));
