@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { ANCHO } from '../constantes.js';
 import { sesion } from '../sesion.js';
-import { FRASES } from '../logica/contenido.js';
+import { buscarFrase } from '../logica/practica.js';
 import { resolverFrase, teclasParaNivel, crearIntento } from '../logica/frase.js';
-import { COLORES, ajustarAncho, crearBailarina, crearBoton } from './dibujo.js';
+import { COLORES, ajustarAncho, crearBailarina, crearBoton, crearTarjeta } from './dibujo.js';
 
 const Y_RANURAS = 210;
 const Y_TECLAS = 600;
@@ -20,7 +20,7 @@ export class Piano extends Phaser.Scene {
   }
 
   create() {
-    this.frase = resolverFrase(FRASES.find((f) => f.id === this.tarea.id), sesion.ahora());
+    this.frase = resolverFrase(buscarFrase(this.tarea.id), sesion.ahora());
     this.intento = crearIntento(this.frase);
     this.colocados = 0;
     this.teclas = [];
@@ -34,6 +34,9 @@ export class Piano extends Phaser.Scene {
     this.bailarina = crearBailarina(this, 90, 410, 1.1);
     crearBoton(this, 80, 80, '🏠', () => this.scene.start('Mapa'));
     crearBoton(this, ANCHO - 80, 80, '🔊', () => sesion.voz.hablar(this.frase.texto, { lento: true }));
+
+    // En la práctica la imagen queda a la vista: de ella depende elegir can o can't.
+    if (this.tarea.tipo === 'practica') crearTarjeta(this, ANCHO - 120, 400, this.frase.imagen, 170, 170);
 
     sesion.musica.iniciarCompas(90);
     this.events.once('shutdown', () => sesion.musica.detenerCompas());

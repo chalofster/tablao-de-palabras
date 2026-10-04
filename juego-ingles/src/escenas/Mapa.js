@@ -4,6 +4,7 @@ import { sesion } from '../sesion.js';
 import { FRASES } from '../logica/contenido.js';
 import { claveDia } from '../logica/calendario.js';
 import { disponibles } from '../logica/repaso.js';
+import { armarRonda, tareaPractica } from '../logica/practica.js';
 import { COLORES, crearBailarina, crearBoton, crearCriatura } from './dibujo.js';
 
 const PARADAS = FRASES.map((_, i) => ({ x: 130 + i * 110, y: i % 2 === 0 ? 470 : 330 }));
@@ -50,6 +51,7 @@ export class Mapa extends Phaser.Scene {
     // La bailarina camina por el suelo, bajo las paradas, para no tapar a las criaturas.
     this.bailarina = crearBailarina(this, partida.x, Y_SUELO, 0.8);
     crearBoton(this, ANCHO - 80, 80, '📖', () => this.scene.start('Coleccion'));
+    crearBoton(this, ANCHO - 80, 210, '🤸', () => this.scene.start('Escucha', tareaPractica(armarRonda(), 0)));
     if (tareas.length === 0) this.bailarina.pose('celebracion');
   }
 

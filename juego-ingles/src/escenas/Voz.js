@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { ANCHO } from '../constantes.js';
 import { sesion } from '../sesion.js';
-import { FRASES } from '../logica/contenido.js';
+import { buscarFrase, siguienteTarea } from '../logica/practica.js';
 import { resolverFrase } from '../logica/frase.js';
 import { crearBoton, crearTarjeta } from './dibujo.js';
 
@@ -16,10 +16,10 @@ export class Voz extends Phaser.Scene {
   }
 
   create() {
-    const frase = resolverFrase(FRASES.find((f) => f.id === this.tarea.id), sesion.ahora());
+    const frase = resolverFrase(buscarFrase(this.tarea.id), sesion.ahora());
     crearTarjeta(this, ANCHO / 2, 230, frase.imagen, 280, 280);
     const boca = this.add.text(ANCHO / 2, 470, '🗣️', { fontSize: '96px' }).setOrigin(0.5).setAlpha(0.3);
-    const seguir = crearBoton(this, ANCHO / 2 + 150, 650, '✅', () => this.scene.start('Captura', this.tarea), 70);
+    const seguir = crearBoton(this, ANCHO / 2 + 150, 650, '✅', () => this.seguir(), 70);
     seguir.setVisible(false);
 
     // Marca de esta vuelta de la escena, para ignorar avisos atrasados de una anterior.
@@ -35,5 +35,12 @@ export class Voz extends Phaser.Scene {
 
     crearBoton(this, ANCHO / 2 - 150, 650, '🔊', invitar, 70);
     invitar();
+  }
+
+  seguir() {
+    if (this.tarea.tipo !== 'practica') return this.scene.start('Captura', this.tarea);
+    const siguiente = siguienteTarea(this.tarea);
+    if (siguiente) return this.scene.start('Escucha', siguiente);
+    return this.scene.start('Fiesta');
   }
 }
