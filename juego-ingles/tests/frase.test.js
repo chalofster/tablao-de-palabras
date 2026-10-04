@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { FRASES } from '../src/logica/contenido.js';
+import { FRASES, ZONAS, PINTURAS } from '../src/logica/contenido.js';
 import {
   resolverFrase, opcionesEscucha, teclasParaNivel, crearIntento, mezclar,
 } from '../src/logica/frase.js';
@@ -110,5 +110,15 @@ describe('crearIntento', () => {
     intento.tocar(un);
     intento.tocar(gato);
     expect(intento.tocar(gato)).toEqual({ ok: false, pista: null });
+  });
+});
+
+describe('frases con colores', () => {
+  it('resolverFrase conserva el color de bloques, distractor e imagen', () => {
+    const frase = resolverFrase(ZONAS[2].frases[0], domingo);
+    expect(frase.texto).toBe('I have a red ball');
+    expect(frase.bloques[2]).toMatchObject({ texto: 'red', color: PINTURAS.red });
+    expect(frase.distractor).toMatchObject({ texto: 'blue', color: PINTURAS.blue, nota: null });
+    expect(frase.imagen).toEqual({ tipo: 'color', color: PINTURAS.red, juguete: '🏐' });
   });
 });

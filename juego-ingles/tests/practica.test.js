@@ -1,34 +1,36 @@
 import { describe, it, expect } from 'vitest';
-import { FRASES } from '../src/logica/contenido.js';
+import { ACCIONES, ZONAS } from '../src/logica/contenido.js';
 import { resolverFrase } from '../src/logica/frase.js';
 import {
-  ACCIONES, PRACTICA, buscarFrase, armarRonda, tareaPractica, siguienteTarea,
+  PRACTICA_PARQUE, buscarFrase, armarRonda, tareaPractica, siguienteTarea,
 } from '../src/logica/practica.js';
 
+const textoDe = (def) => def.bloques.map((bloque) => bloque.texto).join(' ');
+
 describe('contenido de la práctica', () => {
-  it('tiene las 9 acciones de la guía, cada una con can y can\'t', () => {
+  it("el Parque practica las 9 acciones de la guía, cada una con can y can't", () => {
     expect(ACCIONES.map((a) => a.texto)).toEqual([
       'swim', 'ride a bike', 'run', 'dance', 'sing', 'jump', 'fly a kite', 'play soccer', 'skate',
     ]);
-    expect(PRACTICA).toHaveLength(18);
-    expect(new Set(PRACTICA.map((f) => f.id)).size).toBe(18);
+    expect(PRACTICA_PARQUE).toHaveLength(18);
+    expect(new Set(PRACTICA_PARQUE.map((f) => f.id)).size).toBe(18);
   });
 
-  it('arma las frases I can… y I can\'t…', () => {
-    const textos = PRACTICA.map((f) => resolverFrase(f, new Date(2026, 9, 4)).texto);
+  it("arma las frases I can… y I can't…", () => {
+    const textos = PRACTICA_PARQUE.map((f) => resolverFrase(f, new Date(2026, 9, 4)).texto);
     expect(textos).toContain('I can swim');
     expect(textos).toContain("I can't ride a bike");
   });
 
-  it('el distractor es la palabra contraria: can frente a can\'t', () => {
-    for (const f of PRACTICA) {
+  it("el distractor es la palabra contraria: can frente a can't", () => {
+    for (const f of PRACTICA_PARQUE) {
       const modal = f.bloques[1].texto;
       expect(f.distractor.texto).toBe(modal === 'can' ? "can't" : 'can');
     }
   });
 
   it('las imágenes alternativas son la misma acción al revés y otra acción', () => {
-    for (const f of PRACTICA) {
+    for (const f of PRACTICA_PARQUE) {
       const todas = [f.imagen, ...f.otras].map((i) => i.valor);
       expect(new Set(todas).size).toBe(3);
       const accion = f.bloques[2].icono;
@@ -38,23 +40,27 @@ describe('contenido de la práctica', () => {
     }
   });
 
-  it('no repite identificadores de las criaturas del mapa', () => {
-    const ids = new Set(FRASES.map((f) => f.id));
-    expect(PRACTICA.some((f) => ids.has(f.id))).toBe(false);
+  it('las criaturas del Parque son frases de su práctica', () => {
+    for (const criatura of ZONAS[1].frases) {
+      const practica = PRACTICA_PARQUE.find((f) => f.id === criatura.id);
+      expect(practica).toBeDefined();
+      expect(textoDe(practica)).toBe(textoDe(criatura));
+    }
   });
 });
 
 describe('buscarFrase', () => {
-  it('encuentra frases del mapa y de la práctica', () => {
+  it('encuentra criaturas de todas las zonas y frases de práctica', () => {
     expect(buscarFrase('gato').id).toBe('gato');
-    expect(buscarFrase('can-swim').bloques[1].texto).toBe('can');
+    expect(buscarFrase('can-swim').criatura.nombre).toBe('Burbuja');
     expect(buscarFrase('cant-swim').bloques[1].texto).toBe("can't");
+    expect(buscarFrase('tengo-ball').bloques[2].texto).toBe('red');
     expect(buscarFrase('nada')).toBeUndefined();
   });
 });
 
 describe('armarRonda', () => {
-  it('entrega 6 frases de acciones distintas, mitad can y mitad can\'t', () => {
+  it("entrega 6 frases de acciones distintas, mitad can y mitad can't", () => {
     for (let vuelta = 0; vuelta < 50; vuelta++) {
       const ronda = armarRonda();
       expect(ronda).toHaveLength(6);
