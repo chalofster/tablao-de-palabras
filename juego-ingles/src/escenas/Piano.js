@@ -47,13 +47,16 @@ export class Piano extends Phaser.Scene {
 
   crearTecla(bloque, x, y) {
     const tecla = this.add.container(x, y);
-    const icono = this.add.text(0, -18, bloque.icono, { fontSize: '50px' }).setOrigin(0.5);
+    // Un bloque de color muestra el color pintado en vez de un emoji.
+    const icono = bloque.color === undefined
+      ? ajustarAncho(this.add.text(0, -18, bloque.icono, { fontSize: '50px' }).setOrigin(0.5), LADO - 20)
+      : this.add.circle(0, -18, 32, bloque.color).setStrokeStyle(4, COLORES.tinta);
     const palabra = this.add
       .text(0, 46, bloque.texto, { fontSize: '22px', color: '#3d2b1f', fontStyle: 'bold' })
       .setOrigin(0.5);
     tecla.add([
       this.add.rectangle(0, 0, LADO, LADO, COLORES.crema).setStrokeStyle(5, COLORES.tinta),
-      ajustarAncho(icono, LADO - 20),
+      icono,
       ajustarAncho(palabra, LADO - 16),
     ]);
     tecla.setSize(LADO, LADO).setInteractive({ useHandCursor: true });

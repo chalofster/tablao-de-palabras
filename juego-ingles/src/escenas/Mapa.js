@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
-import { ANCHO, ALTO } from '../constantes.js';
+import { ANCHO } from '../constantes.js';
 import { sesion } from '../sesion.js';
-import { FRASES } from '../logica/contenido.js';
 import { claveDia } from '../logica/calendario.js';
-import { disponibles } from '../logica/repaso.js';
+import { buscarZona, tareasDeZona, avisos, vecina, paradas } from '../logica/zonas.js';
 import { armarRonda, tareaPractica } from '../logica/practica.js';
 import { COLORES, crearBailarina, crearBoton, crearCriatura } from './dibujo.js';
+import { dibujarFondo } from './fondos.js';
 
-const PARADAS = FRASES.map((_, i) => ({ x: 130 + i * 110, y: i % 2 === 0 ? 470 : 330 }));
 const Y_SUELO = 640;
+const Y_FLECHAS = 705;
 
 export class Mapa extends Phaser.Scene {
   constructor() {
@@ -17,19 +17,22 @@ export class Mapa extends Phaser.Scene {
 
   create() {
     this.ocupada = false;
-    this.dibujarPatio();
+    const zona = buscarZona(sesion.zona);
+    const hoy = claveDia(sesion.ahora());
+    dibujarFondo(this, zona.id);
 
+    const puntos = paradas(zona.frases.length);
     const camino = this.add.graphics().lineStyle(14, COLORES.oro, 1);
-    PARADAS.forEach((parada, i) => {
-      if (i > 0) camino.lineBetween(PARADAS[i - 1].x, PARADAS[i - 1].y, parada.x, parada.y);
+    puntos.forEach((parada, i) => {
+      if (i > 0) camino.lineBetween(puntos[i - 1].x, puntos[i - 1].y, parada.x, parada.y);
     });
 
-    const tareas = disponibles(sesion.estado, claveDia(sesion.ahora()));
-    const capturadas = FRASES.filter((f) => sesion.estado.criaturas[f.id]).length;
-    const partida = PARADAS[Math.max(0, capturadas - 1)];
+    const tareas = tareasDeZona(sesion.estado, hoy, zona.id);
+    const capturadas = zona.frases.filter((f) => sesion.estado.criaturas[f.id]).length;
+    const partida = puntos[Math.max(0, capturadas - 1)];
 
-    FRASES.forEach((frase, i) => {
-      const parada = PARADAS[i];
+    zona.frases.forEach((frase, i) => {
+      const parada = puntos[i];
       const guardada = sesion.estado.criaturas[frase.id];
       const tarea = tareas.find((t) => t.id === frase.id);
       const criatura = crearCriatura(this, parada.x, parada.y, frase.criatura, {
@@ -51,8 +54,31 @@ export class Mapa extends Phaser.Scene {
     // La bailarina camina por el suelo, bajo las paradas, para no tapar a las criaturas.
     this.bailarina = crearBailarina(this, partida.x, Y_SUELO, 0.8);
     crearBoton(this, ANCHO - 80, 80, '📖', () => this.scene.start('Coleccion'));
-    crearBoton(this, ANCHO - 80, 210, '🤸', () => this.scene.start('Escucha', tareaPractica(armarRonda(), 0)));
+    crearBoton(this, ANCHO - 80, 210, '🤸', () => this.scene.start('Escucha', tareaPractica(armarRonda(zona.id), 0)));
+    this.crearFlechas(zona.id, hoy);
     if (tareas.length === 0) this.bailarina.pose('celebracion');
+  }
+
+  // Una flecha por lado, solo si hay zona hacia ese lado; el punto rojo avisa repasos pendientes allá.
+  crearFlechas(zonaId, hoy) {
+    this.aviso = avisos(sesion.estado, hoy, zonaId);
+    const lados = [
+      { paso: -1, x: 60, icono: '◀️', conAviso: this.aviso.izquierda },
+      { paso: 1, x: ANCHO - 60, icono: '▶️', conAviso: this.aviso.derecha },
+    ];
+    for (const { paso, x, icono, conAviso } of lados) {
+      const destino = vecina(zonaId, paso);
+      if (!destino) continue;
+      crearBoton(this, x, Y_FLECHAS, icono, () => this.irAZona(destino));
+      if (conAviso) this.add.circle(x + 40, Y_FLECHAS - 40, 14, COLORES.rojo).setStrokeStyle(3, COLORES.crema);
+    }
+  }
+
+  irAZona(id) {
+    if (this.ocupada) return;
+    this.ocupada = true;
+    sesion.cambiarZona(id);
+    this.scene.start('Mapa');
   }
 
   irA(parada, tarea) {
@@ -63,25 +89,5 @@ export class Mapa extends Phaser.Scene {
       targets: this.bailarina, x: parada.x, duration: 600,
       onComplete: () => this.scene.start('Escucha', tarea),
     });
-  }
-
-  dibujarPatio() {
-    const g = this.add.graphics();
-    g.fillStyle(COLORES.crema);
-    g.fillRect(0, 0, ANCHO, 560);
-    g.fillStyle(0xe9c46a);
-    g.fillRect(0, 560, ANCHO, ALTO - 560);
-    g.fillStyle(0xf1dca7);
-    for (let i = 0; i < 4; i++) {
-      const x = 128 + i * 256;
-      g.fillRect(x - 70, 150, 140, 410);
-      g.fillCircle(x, 150, 70);
-    }
-    for (let i = 0; i < 5; i++) {
-      g.fillStyle(0xbc6c25);
-      g.fillRect(i * 256 - 22, 520, 44, 40);
-      g.fillStyle(COLORES.rojo);
-      g.fillCircle(i * 256, 505, 20);
-    }
   }
 }

@@ -15,6 +15,6 @@ export class Fiesta extends Phaser.Scene {
     sesion.musica.melodia([64, 67, 71, 76]);
     this.add.text(ANCHO / 2, 80, '⭐⭐⭐', { fontSize: '72px' }).setOrigin(0.5);
     crearBoton(this, ANCHO / 2 - 150, 650, '🏠', () => this.scene.start('Mapa'), 70);
-    crearBoton(this, ANCHO / 2 + 150, 650, '🔁', () => this.scene.start('Escucha', tareaPractica(armarRonda(), 0)), 70);
+    crearBoton(this, ANCHO / 2 + 150, 650, '🔁', () => this.scene.start('Escucha', tareaPractica(armarRonda(sesion.zona), 0)), 70);
   }
 }

@@ -55,6 +55,11 @@ export function crearTarjeta(escena, x, y, imagen, ancho = 240, alto = 240) {
   if (imagen.tipo === 'emoji') {
     const dibujo = escena.add.text(0, 0, imagen.valor, { fontSize: '110px' }).setOrigin(0.5);
     tarjeta.add(ajustarAncho(dibujo, ancho - 40));
+  } else if (imagen.tipo === 'color') {
+    // El color manda: un círculo grande pintado y el juguete encima.
+    const lado = Math.min(ancho, alto);
+    tarjeta.add(escena.add.circle(0, 0, lado * 0.36, imagen.color).setStrokeStyle(4, COLORES.tinta));
+    tarjeta.add(escena.add.text(0, 0, imagen.juguete, { fontSize: `${Math.round(lado * 0.34)}px` }).setOrigin(0.5));
   } else {
     const posicion = (imagen.indice + 6) % 7;
     tarjeta.add(escena.add.text(0, -45, '📅', { fontSize: '72px' }).setOrigin(0.5));

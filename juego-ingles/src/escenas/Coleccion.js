@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { sesion } from '../sesion.js';
-import { FRASES } from '../logica/contenido.js';
+import { buscarZona } from '../logica/zonas.js';
 import { resolverFrase } from '../logica/frase.js';
 import { crearBoton, crearCriatura } from './dibujo.js';
 
@@ -12,9 +12,10 @@ export class Coleccion extends Phaser.Scene {
   create() {
     const fecha = sesion.ahora();
     crearBoton(this, 80, 80, '🏠', () => this.scene.start('Mapa'));
-    FRASES.forEach((def, i) => {
-      const x = 200 + (i % 4) * 210;
-      const y = 290 + Math.floor(i / 4) * 260;
+    // Cinco columnas: las 9 criaturas del Parque caben en dos filas.
+    buscarZona(sesion.zona).frases.forEach((def, i) => {
+      const x = 140 + (i % 5) * 186;
+      const y = 270 + Math.floor(i / 5) * 260;
       const guardada = sesion.estado.criaturas[def.id];
       const criatura = crearCriatura(this, x, y, def.criatura, { silueta: !guardada });
       if (!guardada) return;
