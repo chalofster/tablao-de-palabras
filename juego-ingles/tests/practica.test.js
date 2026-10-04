@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ACCIONES, ZONAS } from '../src/logica/contenido.js';
 import { resolverFrase } from '../src/logica/frase.js';
+import { buscarZona } from '../src/logica/zonas.js';
 import {
   PRACTICA_PARQUE, buscarFrase, armarRonda, tareaPractica, siguienteTarea,
 } from '../src/logica/practica.js';
@@ -62,7 +63,7 @@ describe('buscarFrase', () => {
 describe('armarRonda', () => {
   it("entrega 6 frases de acciones distintas, mitad can y mitad can't", () => {
     for (let vuelta = 0; vuelta < 50; vuelta++) {
-      const ronda = armarRonda();
+      const ronda = armarRonda('parque');
       expect(ronda).toHaveLength(6);
       expect(new Set(ronda.map((id) => id.split('-')[1])).size).toBe(6);
       expect(ronda.filter((id) => id.startsWith('can-'))).toHaveLength(3);
@@ -73,8 +74,36 @@ describe('armarRonda', () => {
 
   it('con el tiempo usa las 9 acciones', () => {
     const vistas = new Set();
-    for (let vuelta = 0; vuelta < 200; vuelta++) armarRonda().forEach((id) => vistas.add(id.split('-')[1]));
+    for (let vuelta = 0; vuelta < 200; vuelta++) armarRonda('parque').forEach((id) => vistas.add(id.split('-')[1]));
     expect(vistas.size).toBe(9);
+  });
+});
+
+describe('armarRonda en el Patio y la Juguetería', () => {
+  const domingo = new Date(2026, 9, 4, 12);
+
+  for (const zona of ['patio', 'jugueteria']) {
+    it(`en ${zona} entrega 6 frases distintas de esa zona, todas resolubles`, () => {
+      const ids = new Set(buscarZona(zona).frases.map((f) => f.id));
+      for (let vuelta = 0; vuelta < 30; vuelta++) {
+        const ronda = armarRonda(zona);
+        expect(ronda).toHaveLength(6);
+        expect(new Set(ronda).size).toBe(6);
+        for (const id of ronda) {
+          expect(ids.has(id)).toBe(true);
+          expect(resolverFrase(buscarFrase(id), domingo).texto.length).toBeGreaterThan(0);
+        }
+      }
+    });
+  }
+
+  it('las frases de día de la práctica del Patio usan la fecha real', () => {
+    expect(resolverFrase(buscarFrase('hoy'), domingo).texto).toBe('Today is Sunday');
+  });
+
+  it('con una zona desconocida practica el Patio', () => {
+    const ids = new Set(ZONAS[0].frases.map((f) => f.id));
+    expect(armarRonda('castillo').every((id) => ids.has(id))).toBe(true);
   });
 });
 
